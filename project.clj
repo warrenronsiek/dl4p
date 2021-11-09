@@ -19,10 +19,4 @@
                                       [org.bytedeco/mkl-platform-redist "2020.3-1.5.4"]]}}
   :jar-exclusions [#".*sandbox.*"]
   :uberjar-exclusions [#".*sandbox.*"]
-  :repl-options {:init-ns dl4p.core}
-  :exclusions [[org.jcuda/jcuda-natives :classifier "apple-x86_64"]
-               [org.jcuda/jcublas-natives :classifier "apple-x86_64"]]
-  :jvm-opts ^:replace ["-Dclojure.compiler.direct-linking=true"
-                       "-XX:MaxDirectMemorySize=16g" "-XX:+UseLargePages"
-                       "--add-opens=java.base/jdk.internal.ref=ALL-UNNAMED"
-                       "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED"])
+  :repl-options {:init-ns dl4p.core})

@@ -20,7 +20,7 @@
                         "git clone https://github.com/warrenronsiek/dl4p.git"
                         "cd dl4p"
                         "lein deps"
-                        "lein trampoline repl with-profile remote :headless :start :port 40000 &"]))))
+                        "lein trampoline repl :headless :start :port 40000 &"]))))
 
 (defn create-instance [{:keys [zone instance-type pem-key security-group subnet-id]}]
   (let [dl4p-id (str "dl4p-" (rand-int 1000))]
