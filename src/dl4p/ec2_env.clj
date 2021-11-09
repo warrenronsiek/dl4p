@@ -16,8 +16,9 @@
                         "chmod +x linux-install-1.10.3.1020.sh"
                         "sudo ./linux-install-1.10.3.1020.sh"
                         "sudo apt -y install leiningen"
-                        "git clone git@github.com:warrenronsiek/dl4p.git"
-                        "cd deep-learning-4-programmers"
+                        "ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts"
+                        "git clone https://github.com/warrenronsiek/dl4p.git"
+                        "cd dl4p"
                         "lein deps"
                         "lein trampoline repl with-profile remote :headless :start :port 40000 &"]))))
 
@@ -43,5 +44,5 @@
                                       :Type                  "one-time"
                                       :Tags                  [{:Key "name" :Value "dl4p-testing"}
                                                               {:Key "dl4p-id" :Value dl4p-id}]
-                                      :SpotPrice             0.05
+                                      :SpotPrice             0.033
                                       :InstanceCount         1}})))

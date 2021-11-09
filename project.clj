@@ -11,10 +11,10 @@
                  [com.cognitect.aws/api "0.8.524"]
                  [com.cognitect.aws/endpoints "1.1.12.93"]
                  [com.cognitect.aws/ec2 "814.2.1008.0"]]
-  :profiles {:uberjar {:main dl4p.core
+  :profiles {:uberjar {:main    dl4p.core
                        :init-ns dl4p.core
-                       :aot [dl4p.core]}
-             :remote  {:init-ns dl4p.sandbox.chap1
+                       :aot     [dl4p.core]}
+             :repl    {:init-ns      dl4p.sandbox.chap1
                        :dependencies [[uncomplicate/neanderthal "0.43.1"]
                                       [org.bytedeco/mkl-platform-redist "2020.3-1.5.4"]]}}
   :jar-exclusions [#".*sandbox.*"]
@@ -22,7 +22,6 @@
   :repl-options {:init-ns dl4p.core}
   :exclusions [[org.jcuda/jcuda-natives :classifier "apple-x86_64"]
                [org.jcuda/jcublas-natives :classifier "apple-x86_64"]]
-  :uberjar-name "dl4p.jar"
   :jvm-opts ^:replace ["-Dclojure.compiler.direct-linking=true"
                        "-XX:MaxDirectMemorySize=16g" "-XX:+UseLargePages"
                        "--add-opens=java.base/jdk.internal.ref=ALL-UNNAMED"

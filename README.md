@@ -16,7 +16,7 @@ Usage
 First, `lein uberjar` to build the cli.
 
 ### creating an instance
-`java -jar ./target/dl4p.jar create-instance --conf my_conf.yml`
+`java -jar target/dl4p-0.0.0-standalone.jar create-instance --conf my_conf.yml`
 
 where `my_conf.yml` has the following format (subbing in your own values):
 
