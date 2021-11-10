@@ -3,7 +3,7 @@
             [clojure.java.shell :refer [sh]]
             [clojure.string :as s]
             [taoensso.timbre :as t]
-            [cljs.core.async :refer [go timeout alts! take! put! chan <! >! close!]])
+            [clojure.core.async :refer [go timeout alts! take! put! chan <! >! close!]])
   (:import java.util.Base64))
 
 (def ec2-client (aws/client {:api :ec2 :region "us-west-2"}))
@@ -27,35 +27,38 @@
 
 (defn create-instance [{:keys [zone instance-type pem-key security-group subnet-id]}]
   (let [key-name (first (s/split (last (s/split pem-key #"/")) #"\."))
-        spot-request (t/spy :info
-                            (aws/invoke ec2-client
-                                        {:op      :RequestSpotInstances
-                                         :request {:AvailabilityZoneGroup zone
-                                                   :LaunchSpecification   {:ImageId             "ami-09889d8d54f9e0a0e"
-                                                                           :UserData            userdata
-                                                                           :InstanceType        instance-type
-                                                                           :EbsOptimized        false
-                                                                           :KeyName             key-name
+        spot-request (aws/invoke ec2-client
+                                 {:op      :RequestSpotInstances
+                                  :request {:AvailabilityZoneGroup zone
+                                            :LaunchSpecification   {:ImageId             "ami-09889d8d54f9e0a0e"
+                                                                    :UserData            userdata
+                                                                    :InstanceType        instance-type
+                                                                    :EbsOptimized        false
+                                                                    :KeyName             key-name
 
-                                                                           :NetworkInterfaces   [{:DeleteOnTermination      true
-                                                                                                  :Groups                   [security-group]
-                                                                                                  :SubnetId                 subnet-id
-                                                                                                  :AssociatePublicIpAddress true
-                                                                                                  :DeviceIndex              0}]
-                                                                           :BlockDeviceMappings [{:DeviceName "/dev/sda1"
-                                                                                                  :Ebs        {:VolumeSize          300
-                                                                                                               :DeleteOnTermination true
-                                                                                                               :VolumeType          "gp2"
-                                                                                                               :Encrypted           false}}]}
-                                                   :Type                  "one-time"
-                                                   :SpotPrice             0.033
-                                                   :InstanceCount         1}}))
-        spot-request-id (t/spy :info (:SpotInstanceRequestId (first (:SpotInstanceRequests spot-request))))
-        _ (Thread/sleep 5000)
-        spot-requests (t/spy :info (aws/invoke ec2-client {:op      :DescribeSpotInstanceRequests
-                                                           :request {:SpotInstanceRequestIds [spot-request-id]}}))
+                                                                    :NetworkInterfaces   [{:DeleteOnTermination      true
+                                                                                           :Groups                   [security-group]
+                                                                                           :SubnetId                 subnet-id
+                                                                                           :AssociatePublicIpAddress true
+                                                                                           :DeviceIndex              0}]
+                                                                    :BlockDeviceMappings [{:DeviceName "/dev/sda1"
+                                                                                           :Ebs        {:VolumeSize          300
+                                                                                                        :DeleteOnTermination true
+                                                                                                        :VolumeType          "gp2"
+                                                                                                        :Encrypted           false}}]}
+                                            :Type                  "one-time"
+                                            :SpotPrice             0.033
+                                            :InstanceCount         1}})
+        spot-request-id (:SpotInstanceRequestId (first (:SpotInstanceRequests spot-request)))
+        _ (t/info "requested instance, waiting for spot request fulfillment")
+        _ (sh (str "aws ec2 wait spot-instance-request-fulfilled --spot-instance-request-ids " spot-request-id))
+        spot-requests (aws/invoke ec2-client {:op      :DescribeSpotInstanceRequests
+                                              :request {:SpotInstanceRequestIds [spot-request-id]}})
         instance-id (t/spy :info (:InstanceId (first (:SpotInstanceRequests spot-requests))))
+        _ (t/info "request fulfilled, waiting for instance to boot")
+        _ (sh (str "aws ec2 wait instance-running --instance-ids " instance-id))
         instances (aws/invoke ec2-client {:op      :DescribeInstances
                                           :request {:InstanceIds [instance-id]}})
-        public-ip (t/spy :info (:PublicIpAddress (first (:Instances (first (:Reservations instances))))))]
+        public-ip (t/spy :info (:PublicIpAddress (first (:Instances (first (:Reservations instances))))))
+        _ (t/info "instance booted, creating background ssh tunnel")]
     (future (sh (str "ssh -N -L 40000:127.0.0.1:40000 ubuntu@" public-ip " -i" pem-key)))))
