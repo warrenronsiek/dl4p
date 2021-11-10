@@ -23,12 +23,12 @@ where `my_conf.yml` has the following format (subbing in your own values):
 ```yaml
 zone: us-west-2
 instance-type: c5.large
-pem-key: mykey 
-security-group: sg-133456789
-subnet-id: 
+pem-key: /path/to/mykey.pem
+security-group: sg-12345678
+subnet-id: subnet-1234567890
 ```
 
 you can then access the remote repl by 
 1. run `ssh -N -L 40000:127.0.0.1:40000 ubuntu@<your-ip> -i ~/path/to/<key-name>.pem`
 2. run an nREPL against port 40000 e.g.:
-![nrepl-config](./nrepl-config.png)
+![nrepl-config](./remote-repl-conf.png)
