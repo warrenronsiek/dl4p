@@ -51,14 +51,14 @@
                                             :InstanceCount         1}})
         spot-request-id (:SpotInstanceRequestId (first (:SpotInstanceRequests spot-request)))
         _ (t/info "requested instance, waiting for spot request fulfillment")
-        _ (sh (str "aws ec2 wait spot-instance-request-fulfilled --spot-instance-request-ids " spot-request-id))
+        _ (sh "aws" "ec2" "wait" "spot-instance-request-fulfilled" "--spot-instance-request-ids" spot-request-id)
         spot-requests (aws/invoke ec2-client {:op      :DescribeSpotInstanceRequests
                                               :request {:SpotInstanceRequestIds [spot-request-id]}})
         instance-id (t/spy :info (:InstanceId (first (:SpotInstanceRequests spot-requests))))
         _ (t/info "request fulfilled, waiting for instance to boot")
-        _ (sh (str "aws ec2 wait instance-running --instance-ids " instance-id))
+        _ (sh "aws" "ec2" "wait" "instance-status-ok" "--instance-ids" instance-id)
         instances (aws/invoke ec2-client {:op      :DescribeInstances
                                           :request {:InstanceIds [instance-id]}})
         public-ip (t/spy :info (:PublicIpAddress (first (:Instances (first (:Reservations instances))))))
         _ (t/info "instance booted, creating background ssh tunnel")]
-    (future (sh (str "ssh -N -L 40000:127.0.0.1:40000 ubuntu@" public-ip " -i" pem-key)))))
+    (future (sh "ssh" "-NL" "-oStrictHostKeyChecking=no" "40000:127.0.0.1:40000" "ubuntu@" public-ip " -i" pem-key))))

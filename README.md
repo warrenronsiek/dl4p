@@ -9,6 +9,7 @@ and using nREPL to allow for a local clojure development experience on arbitrari
 Setup/Requirements
 ------------------
 * AWS keys with appropriate permissions stored in env vars on local machine
+* AWS cli installed and configured on local machine
 * Local uses java11, but java8 will probably work too.
 
 Usage
