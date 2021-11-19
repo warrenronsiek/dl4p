@@ -61,4 +61,4 @@
                                           :request {:InstanceIds [instance-id]}})
         public-ip (t/spy :info (:PublicIpAddress (first (:Instances (first (:Reservations instances))))))
         _ (t/info "instance booted, creating background ssh tunnel")]
-    (future (sh "ssh" "-NL" "-oStrictHostKeyChecking=no" "40000:127.0.0.1:40000" "ubuntu@" public-ip " -i" pem-key))))
+    (future (sh "ssh" "-oStrictHostKeyChecking=accept-new" "-NL" "40000:127.0.0.1:40000" "ubuntu@" public-ip " -i" pem-key))))
