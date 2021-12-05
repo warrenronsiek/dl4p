@@ -25,7 +25,7 @@
                         "lein deps"
                         "lein trampoline repl :headless :start :port 40000 &"]))))
 
-(defn create-instance [{:keys [zone instance-type pem-key security-group subnet-id]}]
+(defn create-instance [{:keys [zone instance-type pem-key security-group subnet-id price]}]
   (let [key-name (first (s/split (last (s/split pem-key #"/")) #"\."))
         spot-request (aws/invoke ec2-client
                                  {:op      :RequestSpotInstances
@@ -47,7 +47,7 @@
                                                                                                         :VolumeType          "gp2"
                                                                                                         :Encrypted           false}}]}
                                             :Type                  "one-time"
-                                            :SpotPrice             0.033
+                                            :SpotPrice             price
                                             :InstanceCount         1}})
         spot-request-id (:SpotInstanceRequestId (first (:SpotInstanceRequests spot-request)))
         _ (t/info "requested instance, waiting for spot request fulfillment")
@@ -61,4 +61,4 @@
                                           :request {:InstanceIds [instance-id]}})
         public-ip (t/spy :info (:PublicIpAddress (first (:Instances (first (:Reservations instances))))))
         _ (t/info "instance booted, creating background ssh tunnel")]
-    (future (sh "ssh" "-oStrictHostKeyChecking=accept-new" "-NL" "40000:127.0.0.1:40000" "ubuntu@" public-ip " -i" pem-key))))
+    (future (sh "ssh" "-oStrictHostKeyChecking=accept-new" "-NL" "40000:127.0.0.1:40000"  (str "ubuntu@" public-ip)  "-i" pem-key))))

@@ -16,6 +16,7 @@
                        :aot     [dl4p.core]}
              :repl    {:init-ns      dl4p.sandbox.chap1
                        :dependencies [[uncomplicate/neanderthal "0.43.1"]
+                                      [uncomplicate/commons "0.12.2"]
                                       [org.bytedeco/mkl-platform-redist "2020.3-1.5.4"]]}}
   :jar-exclusions [#".*sandbox.*"]
   :uberjar-exclusions [#".*sandbox.*"]
