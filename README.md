@@ -6,14 +6,18 @@ that do an end-run around this problem. Specifically, it helps you in setting up
 and using nREPL to allow for a local clojure development experience on arbitrarily powerful clojure/neanderthal boxes
 (on the cheap!).
 
-Setup/Requirements
-------------------
+I solved this in two ways:
+1. Docker - just do docker-compose up and then connect lein nREPL to it.
+2. CLI for EC2 spot - spin up EC2 instances and nREPL into those.
+
+EC2 Setup/Requirements
+----------------------
 * AWS keys with appropriate permissions stored in env vars on local machine
 * AWS cli installed and configured on local machine
 * Local uses java11, but java8 will probably work too.
 
-Usage
------
+EC2 Usage
+---------
 First, `lein uberjar` to build the cli.
 
 ### creating an instance

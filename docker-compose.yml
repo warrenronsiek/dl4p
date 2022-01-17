@@ -1,0 +1,8 @@
+version: "3.9"
+services:
+  dl4p:
+    image: dl4p:latest
+    build:
+      context: .
+    ports:
+      - "40000:40000"
